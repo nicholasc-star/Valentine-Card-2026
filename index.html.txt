@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💌 For You</title>
+  <style>
+    :root{
+      --bg:#fff0f6;
+      --card:#ffffff;
+      --ink:#222;
+      --muted:#666;
+      --pink:#ff4d6d;
+      --pink2:#ff8fab;
+      --shadow:0 14px 40px rgba(0,0,0,.14);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system, system-ui, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--ink);
+      overflow-x:hidden;
+    }
+    .wrap{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+    }
+    .panel{
+      width:min(560px, 94vw);
+      background:var(--card);
+      border-radius:20px;
+      box-shadow: var(--shadow);
+      padding:28px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* --- Envelope --- */
+    .envelopeStage{
+      display:grid;
+      place-items:center;
+      gap:14px;
+      padding:10px 0 4px;
+    }
+    .envelopeHint{
+      font-size:14px;
+      color:var(--muted);
+    }
+    .envelope{
+      width:min(420px, 86vw);
+      aspect-ratio: 16/10;
+      position:relative;
+      cursor:pointer;
+      border-radius:16px;
+      transform: translateZ(0);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .env-body{
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, #ffffff, #ffe3ec);
+      border-radius:16px;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.06);
+    }
+    .env-pocket{
+      position:absolute; inset:0;
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .pocket-front{
+      position:absolute; left:0; right:0; bottom:-1px; height:58%;
+      background: linear-gradient(180deg, #ffd6e0, #ffc2d1);
+      clip-path: polygon(0 0, 100% 0, 50% 85%);
+      opacity:.95;
+    }
+    .pocket-back{
+      position:absolute; left:0; right:0; bottom:0; height:70%;
+      background: rgba(255, 143, 171, .14);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    .env-flap{
+      position:absolute; left:0; right:0; top:0; height:60%;
+      background: linear-gradient(180deg, #ffb3c1, #ff8fab);
+      clip-path: polygon(0 0, 100% 0, 50% 90%);
+      transform-origin: 50% 0%;
+      transition: transform 900ms cubic-bezier(.2,.9,.2,1);
+      border-top-left-radius:16px;
+      border-top-right-radius:16px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.10);
+    }
+    .seal{
+      position:absolute;
+      left:50%; top:52%;
+      transform:translate(-50%,-50%);
+      width:64px; height:64px;
+      border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, #ff4d6d);
+      box-shadow: 0 10px 22px rgba(255,77,109,.28);
+      display:grid; place-items:center;
+      color:white;
+      font-size:26px;
+      transition: transform 400ms ease;
+    }
+    .envelope:hover .seal{ transform:translate(-50%,-50%) scale(1.04); }
+
+    .letter{
+      position:absolute;
+      left:50%;
+      top:12%;
+      transform: translateX(-50%);
+      width:86%;
+      height:76%;
+      background: #fff;
+      border-radius:14px;
+      box-shadow: 0 14px 26px rgba(0,0,0,.12);
+      padding:18px 16px;
+      display:grid;
+      align-content:center;
+      gap:10px;
+      opacity:0;
+      transform-origin: 50% 100%;
+      transition: opacity 400ms ease, transform 900ms cubic-bezier(.2,.9,.2,1);
+    }
+    .letter .line{
+      height:10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.06);
+      margin:0 auto;
+      width:92%;
+    }
+    .letter .line:nth-child(2){ width:78%;}
+    .letter .line:nth-child(3){ width:84%;}
+    .letter .line:nth-child(4){ width:70%;}
+    .letterTitle{
+      font-weight:700;
+      font-size:18px;
+      margin:0;
+      color:#333;
+    }
+    .letterSub{
+      margin:0;
+      color:#555;
+      font-size:14px;
+    }
+
+    .opened .env-flap{ transform: rotateX(175deg); }
+    .opened .letter{
+      opacity:1;
+      transform: translateX(-50%) translateY(-20px);
+    }
+
+    /* --- Question UI --- */
+    .hidden{ display:none; }
+    h1{ margin:0 0 6px; font-size:30px; }
+    p{ margin:10px 0 18px; font-size:18px; color:#333; }
+
+    .btnArea{
+      position:relative;
+      height:120px;
+      display:grid;
+      place-items:center;
+      margin-top:8px;
+    }
+    .btns{
+      position:relative;
+      width:min(520px, 92vw);
+      height:120px;
+    }
+    button{
+      border:0;
+      border-radius:999px;
+      padding:12px 18px;
+      font-size:16px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
+    }
+    #yesBtn{
+      background: var(--pink);
+      color:#fff;
+      position:absolute;
+      left:50%;
+      transform:translateX(-130px);
+      top:34px;
+    }
+    #noBtn{
+      background:#e9ecef;
+      color:#111;
+      position:absolute;
+      left:50%;
+      transform:translateX(40px);
+      top:34px;
+    }
+    .small{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:12px;
+    }
+
+    /* Confetti canvas sits on top */
+    #confetti{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9999;
+    }
+
+    /* Simple fade between screens */
+    .fadeIn{
+      animation: fadeIn 450ms ease both;
+    }
+    @keyframes fadeIn{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="wrap">
+    <div class="panel">
+
+      <!-- Screen 1: Envelope -->
+      <div id="screenEnvelope" class="envelopeStage fadeIn">
+        <div class="envelopeHint">You got mail 💌 (tap to open)</div>
+
+        <div id="envelope" class="envelope" aria-label="Open envelope">
+          <div class="env-body"></div>
+
+          <div class="letter" id="letter">
+            <p class="letterTitle">For you ❤️</p>
+            <p class="letterSub">Tap again to read…</p>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+
+          <div class="env-pocket">
+            <div class="pocket-back"></div>
+            <div class="pocket-front"></div>
+          </div>
+
+          <div class="env-flap"></div>
+          <div class="seal">❤</div>
+        </div>
+
+        <div class="small">(It’s safe. It’s just a cute webpage.)</div>
+      </div>
+
+      <!-- Screen 2: Question -->
+      <div id="screenQuestion" class="hidden">
+        <h1>Hey beautiful 💘</h1>
+        <p>Will you be my Valentine?</p>
+
+        <div class="btnArea">
+          <div class="btns" id="btnsBox">
+            <button id="yesBtn">Yes 💞</button>
+            <button id="noBtn">No 🙈</button>
+          </div>
+        </div>
+
+        <div class="small">Choose wisely 😌</div>
+      </div>
+
+      <!-- Screen 3: Yes -->
+      <div id="screenYes" class="hidden">
+        <h1>Yessss 😍</h1>
+        <p>Okay it’s official. You’re my Valentine.</p>
+        <p>💐💐💐</p>
+        <div class="small">Text me “YES” so I can freak out.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // -------------------------
+    // Screen transitions
+    // -------------------------
+    const screenEnvelope = document.getElementById("screenEnvelope");
+    const screenQuestion = document.getElementById("screenQuestion");
+    const screenYes = document.getElementById("screenYes");
+
+    const envelope = document.getElementById("envelope");
+    let envelopeOpenedOnce = false;
+
+    envelope.addEventListener("click", () => {
+      // First click: open envelope animation
+      if (!envelopeOpenedOnce) {
+        envelope.classList.add("opened");
+        envelopeOpenedOnce = true;
+        return;
+      }
+      // Second click: go to question
+      screenEnvelope.classList.add("hidden");
+      screenQuestion.classList.remove("hidden");
+      screenQuestion.classList.add("fadeIn");
+      setTimeout(() => screenQuestion.classList.remove("fadeIn"), 500);
+      // set initial no-button bounds
+      initNoRunaway();
+    });
+
+    // -------------------------
+    // Runaway "No" button
+    // -------------------------
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const btnsBox = document.getElementById("btnsBox");
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function moveNoSomewhere() {
+      const box = btnsBox.getBoundingClientRect();
+      const btn = noBtn.getBoundingClientRect();
+
+      // Random target within the container bounds, leaving margin
+      const margin = 8;
+      const maxX = box.width - btn.width - margin;
+      const maxY = box.height - btn.height - margin;
+
+      const x = Math.random() * maxX + margin;
+      const y = Math.random() * maxY + margin;
+
+      // Position absolutely within btnsBox
+      noBtn.style.left = "0px";
+      noBtn.style.top = "0px";
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
